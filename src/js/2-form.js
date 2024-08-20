@@ -1,44 +1,37 @@
-const feedbackFormEl = document.querySelector('.feedback-form');
-let formData = { email: '', message: '' };
+let formData = { email: "", message: "" };
 
-const fillFormFields = () => {
-  const formDataFromLS = JSON.parse(
-    localStorage.getItem('feedback-form-state')
-  );
-  if (formDataFromLS === null) {
-    return;
-  }
-  formData = formDataFromLS;
 
-  for (const key in formDataFromLS) {
-    if (formDataFromLS.hasOwnProperty(key)) {
-      feedbackFormEl.elements[key].value = formDataFromLS[key];
+const form = document.querySelector('.feedback-form');
+const emailInput = form.elements['email'];
+const messageInput = form.elements['message'];
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const savedData = localStorage.getItem('feedback-form-state');
+    if (savedData) {
+        formData = JSON.parse(savedData);
+        emailInput.value = formData.email || '';
+        messageInput.value = formData.message || '';
     }
-  }
-};
+});
 
-fillFormFields();
+form.addEventListener('input', (event) => {
+    formData[event.target.name] = event.target.value.trim();
+    localStorage.setItem('feedback-form-state', JSON.stringify(formData));
+});
 
-const onFormFieldChange = event => {
-  const fieldName = event.target.name;
-  const fieldValue = event.target.value;
-  formData[fieldName] = fieldValue;
-  localStorage.setItem('feedback-form-state', JSON.stringify(formData));
-};
+form.addEventListener('submit', (event) => {
+    event.preventDefault();
 
-const onFeedbackFormSubmit = event => {
-  event.preventDefault();
-  const email = formData.email.trim();
-  const message = formData.message.trim();
+    if (!formData.email || !formData.message) {
+        alert('Fill please all fields');
+        return;
+    }
 
-  if (email === '' || message === '') {
-    alert('Fill please all fields');
-    return;
-  }
-  event.target.reset();
-  localStorage.removeItem('feedback-form-state');
-  console.log(formData);
-};
+    console.log('Submitted form data:', formData);
 
-feedbackFormEl.addEventListener('input', onFormFieldChange);
-feedbackFormEl.addEventListener('submit', onFeedbackFormSubmit);
+    
+    form.reset();
+    localStorage.removeItem('feedback-form-state');
+    formData = { email: "", message: "" };
+});
